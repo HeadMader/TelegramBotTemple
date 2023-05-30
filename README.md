@@ -1,4 +1,4 @@
-# TelegramBotHelper
+# EasyTelegramBot
 
 ## Simple usage example
   
