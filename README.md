@@ -11,13 +11,18 @@ public static ITelegramBotClient Bot = new TelegramBotClient(BotToken);
 
 BotBuilder botBuilder = new BotBuilder(Bot);
 
-botBuilder.AddRoute("/start", UpdateType.Message, () =>
+botBuilder.AddRoute("/start", UpdateType.Message, (pipeline) =>
 {
-	botBuilder.End(async (update) =>
+	pipeline.Use(async (update) =>
 	{
 		await Bot.SendTextMessageAsync(update.Message.Chat.Id,"Hello You");
+		await Bot.SendTextMessageAsync(update.Message.Chat.Id, "Write Something");
+	});
+	pipeline.Use(async (update) =>
+	{
+		await Bot.SendTextMessageAsync(update.Message.Chat.Id, "Hello world");
 	});
 });
-      
+
 botBuilder.Start();
 ```
