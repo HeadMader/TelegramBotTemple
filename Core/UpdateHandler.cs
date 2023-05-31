@@ -57,7 +57,7 @@ namespace Core
 					userActions.Remove(chatId);
 					return;
 				}
-				
+
 				userActions[chatId] = next;
 
 			}

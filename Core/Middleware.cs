@@ -8,7 +8,7 @@ using Telegram.Bot.Types;
 
 namespace EasyTelegramBot.Core
 {
-	public class Middleware 
+	public class Middleware
 	{
 		public Middleware Next = null;
 

@@ -15,7 +15,7 @@ namespace TelegramBotHelper.Core
 		public static CommandPipeline Use(this CommandPipeline pipeline, Func<Update, Task> command)
 		{
 			Middleware middleware = new();
-			middleware.Command = update => command(update);
+			middleware.CommandHandler = update => command(update);
 			pipeline.AddMiddleware(middleware);
 			return pipeline;
 		}
