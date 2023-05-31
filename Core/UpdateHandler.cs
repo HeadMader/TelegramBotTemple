@@ -1,4 +1,5 @@
-﻿using Telegram.Bot;
+﻿using EasyTelegramBot.Core;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
@@ -6,7 +7,7 @@ namespace Core
 {
 	internal class UpdateHandler
 	{
-		private Dictionary<long, CommandDelegate> userActions = new();
+		private Dictionary<long, Middleware> userActions = new();
 
 		private RoutesManager routesManager;
 
@@ -47,9 +48,17 @@ namespace Core
 			{
 				if (route.UpdateType != update.Type)
 				{
-                    await Console.Out.WriteLineAsync($"Pipeline by path = {complexCallback[0]} has not vaild UpdateType");
-                }
-				await route.Start(update);
+					await Console.Out.WriteLineAsync($"Pipeline by path = {complexCallback[0]} has not vaild UpdateType");
+				}
+				var next = await route.Start(update);
+
+				if (next == null)
+				{
+					userActions.Remove(chatId);
+					return;
+				}
+				
+				userActions[chatId] = next;
 
 			}
 			//continue current messages pipeline
@@ -57,7 +66,14 @@ namespace Core
 			{
 				if (userActions.Keys.Contains(chatId))
 				{
-					await userActions[chatId].Invoke(update);
+					var next = await userActions[chatId].InvokeAsync(update);
+
+					if (next == null)
+					{
+						userActions.Remove(chatId);
+						return;
+					}
+					userActions[chatId] = next;
 				}
 			}
 		}

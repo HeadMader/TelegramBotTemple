@@ -1,13 +1,14 @@
-﻿using Telegram.Bot.Types;
+﻿using EasyTelegramBot.Core;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace Core
 {
     public class CommandPipeline
     {
-        private List<Func<CommandDelegate, CommandDelegate>> middlewares = new();
+        private List<Middleware> middlewares = new();
         private readonly Action<CommandPipeline> startMethod;
-        private CommandDelegate firstMiddleware;
+        private Middleware firstMiddleware;
         public UpdateType UpdateType { get; private set; }
 
         public CommandPipeline(Action<CommandPipeline> method, UpdateType updateType)
@@ -17,11 +18,11 @@ namespace Core
         }
 
         //Start pipeline
-        public async Task Start(Update update)
+        public async Task<Middleware> Start(Update update)
         {
-			await firstMiddleware.Invoke(update);
+			return await firstMiddleware.InvokeAsync(update);
 		}
-
+        
         // Start method that contains all middlewires
         // On invoke it adds middlewares to pipeline
         public void Build()
@@ -31,19 +32,20 @@ namespace Core
 		}
         
         //Add middleware
-        public void AddMiddleware(Func<CommandDelegate, CommandDelegate> commandDelegate)
+        public void AddMiddleware(Middleware commandDelegate)
         {
             middlewares.Add(commandDelegate);
         }
 
         // Build pipeline with middlewares
-        public CommandDelegate BuildPipeline()
+        public Middleware BuildPipeline()
         {
-			CommandDelegate middleware = update => { return Task.CompletedTask; };
-
+            Middleware middleware = new();
+            middleware.Command = update => Task.CompletedTask;
             for (var i = middlewares.Count - 1; i >= 0; i--)
             {
-                middleware = middlewares[i](middleware);
+                middlewares[i].Next = middleware;
+				middleware = middlewares[i];
             }
             return middleware;
         }
