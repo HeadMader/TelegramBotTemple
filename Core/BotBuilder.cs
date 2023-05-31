@@ -9,21 +9,20 @@ namespace Core
 
 	public class BotBuilder
 	{
-		private RoutesManager routesManager;
-		private UpdateHandler updateHandler;
+		private RoutesManager routesManager = new();
 		private ITelegramBotClient botClient;
 
 		public BotBuilder(ITelegramBotClient bot) {
-			routesManager = new RoutesManager();
-			updateHandler = new UpdateHandler(routesManager);
 			botClient = bot;
 		}
 
 		/// <summary>
-		/// Starts bot
+		/// Start bot
 		/// </summary>
 		public void Start()
 		{
+			UpdateHandler updateHandler = new(routesManager);
+
 			var cts = new CancellationTokenSource();
 			var cancellationToken = cts.Token;
 			var receiverOptions = new ReceiverOptions
@@ -38,55 +37,12 @@ namespace Core
 			cancellationToken);
 		}
 
-		/// <summary>
-		/// Create new command ppieline
-		/// </summary>
-		/// <param name="route"></param>
-		/// <param name="updateType"></param>
-		/// <param name="commandDelegate"></param>
-		public void AddRoute(string route, UpdateType updateType, Action commandDelegate)
+		// Create new command pipeline
+		public void AddRoute(string route, UpdateType updateType, Action<CommandPipeline> commandDelegate)
 		{
-			routesManager.AddRoute(route, updateType, commandDelegate);
-		}
-
-		/// <summary>
-		/// Add middleware
-		/// </summary>
-		/// <param name="middleware"></param>
-		/// <returns></returns>
-		public BotBuilder Use(Func<Update, Func<Task>, Task> middleware)
-		{
-			routesManager.GetLastRoute().AddMiddleware(next =>
-			{
-				return update =>
-				{
-					Func<Task> simpleNext = () => next(update);
-					return middleware(update, simpleNext);
-				};
-			});
-			return this;
-		}
-
-		/// <summary>
-		/// Add middleware
-		/// </summary>
-		/// <param name="command"></param>
-		/// <returns></returns>
-		public BotBuilder Use(Func<Update, CommandDelegate, Task> command)
-		{
-			routesManager.GetLastRoute().AddMiddleware(next => update => command(update, next));
-			return this;
-		}
-
-		/// <summary>
-		/// Add last middleware
-		/// </summary>
-		/// <param name="command"></param>
-		/// <returns></returns>
-		public BotBuilder End(Func<Update, Task> command)
-		{
-			routesManager.GetLastRoute().AddMiddleware(next => update => command(update));
-			return this;
+			var commandPipeline = new CommandPipeline(commandDelegate, updateType);
+			commandPipeline.Build();
+			routesManager.AddPipeline(route, commandPipeline);
 		}
 	}
 }

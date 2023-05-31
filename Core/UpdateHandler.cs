@@ -30,7 +30,7 @@ namespace Core
 			// Get path
 			if (update.Type == UpdateType.Message)
 			{
-				complexCallback = message?.Text?.Split("/")!;
+				complexCallback = message?.Text?.Split(" ")!;
 			}
 			else if (update.Type == UpdateType.CallbackQuery)
 			{
@@ -47,10 +47,9 @@ namespace Core
 			{
 				if (route.UpdateType != update.Type)
 				{
-                    await Console.Out.WriteLineAsync($"Pipeline by path = {complexCallback[0]} has not vaild UpdateType}");
+                    await Console.Out.WriteLineAsync($"Pipeline by path = {complexCallback[0]} has not vaild UpdateType");
                 }
-				var pipline = route.Build();
-				await pipline.Invoke(update);
+				await route.Start(update);
 
 			}
 			//continue current messages pipeline
@@ -66,6 +65,7 @@ namespace Core
 		{
 			await Console.Out.WriteLineAsync(exception.Message + "\n" + exception.StackTrace);
 		}
+
 		public long GetChatId(Update update)
 		{
 			long chatId = 0;

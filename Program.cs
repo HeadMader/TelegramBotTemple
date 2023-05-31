@@ -1,6 +1,7 @@
 ﻿using Core;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
+using TelegramBotHelper.Core;
 
 namespace TelegramBotHelper
 {
@@ -14,9 +15,9 @@ namespace TelegramBotHelper
 		{
 			BotBuilder botBuilder = new BotBuilder(Bot);
 
-			botBuilder.AddRoute("/start", UpdateType.Message, () =>
+			botBuilder.AddRoute("/start", UpdateType.Message, (pipeline) =>
 			{
-				botBuilder.End(async (update) =>
+				pipeline.End(async (update) =>
 				{
 					await Bot.SendTextMessageAsync(update.Message.Chat.Id,"Hello You");
 				});

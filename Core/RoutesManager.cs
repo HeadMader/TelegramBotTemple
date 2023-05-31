@@ -6,24 +6,13 @@ namespace Core
     {
         private Dictionary<string, CommandPipeline> RouteCommand = new();
 
-        /// <summary>
-        /// Add route
-        /// </summary>
-        /// <param name="route"></param>
-        /// <param name="updateType"></param>
-        /// <param name="commandDelegate"></param>
-        public void AddRoute(string route, UpdateType updateType, Action commandDelegate)
-        {
-            var commandPipeline = new CommandPipeline(commandDelegate, updateType);
+        //Add Route
+        public void AddPipeline(string route, CommandPipeline commandPipeline)
+        { 
             RouteCommand.Add(route, commandPipeline);
-            commandPipeline.Start();
         }
 
-        /// <summary>
-        /// Get specific route by path
-        /// </summary>
-        /// <param name="route"></param>
-        /// <returns></returns>
+        // Get specific route by path
         public CommandPipeline GetRoute(string route)
         {
             if (RouteCommand.ContainsKey(route))
@@ -31,23 +20,5 @@ namespace Core
             else
                 return null;
         }
-
-        /// <summary>
-        /// Get all routes
-        /// </summary>
-        /// <returns></returns>
-        public Dictionary<string, CommandPipeline> GetRoutes()
-        {
-            return RouteCommand;
-        }
-        /// <summary>
-        /// Get last added route
-        /// </summary>
-        /// <returns></returns>
-        public CommandPipeline GetLastRoute()
-        {
-            return RouteCommand.Last().Value;
-        }
-
     }
 }
