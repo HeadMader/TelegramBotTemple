@@ -10,9 +10,9 @@ namespace EasyTelegramBot.Core
 {
 	public class Middleware
 	{
-		public Middleware Next = null;
+		public Middleware? Next = null;
 
-		public CommandDelegate CommandHandler;
+		public CommandDelegate CommandHandler = null;
 
 		public Middleware Invoke(Update update)
 		{
