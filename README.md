@@ -1,4 +1,15 @@
 # EasyTelegramBot
+## Description
+Helps to easily create conversation flow, and step by step conversation 
+
+# .NET CLI
+```
+dotnet add package Telegram.Bot --version 19.0.0
+```
+# Package Manager
+```
+NuGet\Install-Package Telegram.Bot -Version 19.0.0
+```
 
 ## Simple usage example
   
