@@ -12,7 +12,8 @@ namespace Core
 		private RoutesManager routesManager = new();
 		private ITelegramBotClient botClient;
 
-		public BotBuilder(ITelegramBotClient bot) {
+		public BotBuilder(ITelegramBotClient bot)
+		{
 			botClient = bot;
 		}
 

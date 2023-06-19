@@ -1,4 +1,15 @@
 # EasyTelegramBot
+## Description
+Helps to easily create conversation flow, and step by step conversation 
+
+# .NET CLI
+```
+dotnet add package Telegram.Bot --version 19.0.0
+```
+# Package Manager
+```
+NuGet\Install-Package Telegram.Bot -Version 19.0.0
+```
 
 ## Simple usage example
   
@@ -11,13 +22,18 @@ public static ITelegramBotClient Bot = new TelegramBotClient(BotToken);
 
 BotBuilder botBuilder = new BotBuilder(Bot);
 
-botBuilder.AddRoute("/start", UpdateType.Message, () =>
+botBuilder.AddRoute("/start", UpdateType.Message, (pipeline) =>
 {
-	botBuilder.End(async (update) =>
+	pipeline.Use(async (update) =>
 	{
-		await Bot.SendTextMessageAsync(update.Message.Chat.Id,"Hello You");
+		await Bot.SendTextMessageAsync(update.Message.Chat.Id, "Write Your Name");
+	});
+		pipeline.Use(async (update) =>
+	{
+		string name = update?.Message?.Text;
+		await Bot.SendTextMessageAsync(update.Message.Chat.Id, $"Hello {name}");
 	});
 });
-      
+
 botBuilder.Start();
 ```

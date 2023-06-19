@@ -1,54 +1,57 @@
-﻿using Telegram.Bot.Types;
+﻿using EasyTelegramBot.Core;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace Core
 {
-    public class CommandPipeline
-    {
-        private List<Func<CommandDelegate, CommandDelegate>> middlewares = new();
-        private readonly Action<CommandPipeline> startMethod;
-        private CommandDelegate firstMiddleware;
-        public UpdateType UpdateType { get; private set; }
+	public class CommandPipeline
+	{
+		
+		private LinkedList<Middleware> middlewares = new();
+		private readonly Action<CommandPipeline> startMethod;
+		public UpdateType UpdateType { get; private set; }
 
-        public CommandPipeline(Action<CommandPipeline> method, UpdateType updateType)
-        {
-            startMethod = method;
-            this.UpdateType = updateType;
-        }
-
-        //Start pipeline
-        public async Task Start(Update update)
-        {
-			await firstMiddleware.Invoke(update);
+		public CommandPipeline(Action<CommandPipeline> method, UpdateType updateType)
+		{
+			startMethod = method;
+			this.UpdateType = updateType;
 		}
 
-        // Start method that contains all middlewires
-        // On invoke it adds middlewares to pipeline
-        public void Build()
-        {
+		//Start pipeline
+		public async Task<Middleware> Start(Update update)
+		{
+			return await middlewares.First().InvokeAsync(update);
+		}
+
+		// Start method that contains all middlewires
+		// On invoke it adds middlewares to pipeline
+		public void Build()
+		{
 			startMethod.Invoke(this);
-			firstMiddleware = BuildPipeline();
+			BuildPipeline();
 		}
-        
-        //Add middleware
-        public void AddMiddleware(Func<CommandDelegate, CommandDelegate> commandDelegate)
-        {
-            middlewares.Add(commandDelegate);
-        }
 
-        // Build pipeline with middlewares
-        public CommandDelegate BuildPipeline()
-        {
-			CommandDelegate middleware = update => { return Task.CompletedTask; };
+		//Add middleware
+		public void AddMiddleware(Middleware commandDelegate)
+		{
+			middlewares.AddLast(commandDelegate);
+		}
 
-            for (var i = middlewares.Count - 1; i >= 0; i--)
-            {
-                middleware = middlewares[i](middleware);
-            }
-            return middleware;
-        }
+		// Build pipeline with middlewares
+		public Middleware? BuildPipeline()
+		{
+			Middleware? middleware = null;
+			//middleware.CommandHandler = update => Task.CompletedTask;
+			for (var i = middlewares.Count - 1; i >= 0; i--)
+			{
+				var ware = middlewares.ElementAt(i);
+				ware.Next = middleware;
+				middleware = ware;
+			}
+			return middleware;
+		}
 
-    }
+	}
 }
 
 

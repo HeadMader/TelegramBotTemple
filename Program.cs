@@ -7,7 +7,7 @@ namespace TelegramBotHelper
 {
 	internal class Program
 	{
-		static string BotToken = "Your Bot Token";
+		static string BotToken = "5991496923:AAFjhww7PhZUX9SKAn3tOQ4UAGfAk8hQOps";
 
 		public static ITelegramBotClient Bot = new TelegramBotClient(BotToken);
 
@@ -17,9 +17,14 @@ namespace TelegramBotHelper
 
 			botBuilder.AddRoute("/start", UpdateType.Message, (pipeline) =>
 			{
-				pipeline.End(async (update) =>
+				pipeline.Use(async (update) =>
 				{
 					await Bot.SendTextMessageAsync(update.Message.Chat.Id,"Hello You");
+					await Bot.SendTextMessageAsync(update.Message.Chat.Id, "Write Something");
+				});
+				pipeline.Use(async (update) =>
+				{
+					await Bot.SendTextMessageAsync(update.Message.Chat.Id, "Hello world");
 				});
 			});
 
